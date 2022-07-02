@@ -13,9 +13,7 @@ More details on how the functions work and how to use them in the future.
 
 ### Usage:
 ```bash
-usage: cglut [-h] [-s LSIZE] script_file
-
-Script-based color-grading 3D LUT creator.
+usage: ./cglut [-h] [-s LSIZE] script_file
 
 positional arguments:
   script_file           script file with the color-grading functions
