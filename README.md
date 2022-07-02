@@ -3,7 +3,7 @@
 
 ### What you can do with it
 + White-balance by just inputing RGB values for which you want the saturation to be zero.
-+ RGB curves functions that accepts [gimp](https://github.com/GNOME/gimp) preset files (in the old format) as input.
++ RGB curves functions that accepts [GIMP](https://github.com/GNOME/gimp) preset files (in the old format) as input.
 + 1-D Curve function, but with extra channel options such as luminance, lightness, chroma and even hue.
 + Powerful "perturb" function, which is perturbation of the identity map of one channel, where the perturbation added is a function of another given channel.
 + Tweak function similar to [AviSynth's Tweak](https://www.avisynth.org.ru/docs/english/corefilters/tweak.htm).
