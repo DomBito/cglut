@@ -1,6 +1,8 @@
 # cglut
 ### Create your own color-grading 3D-LUT preset using a custom python script.
 
+Huge improvement over [DomBito/muhcolors](https://github.com/DomBito/muhcolors).
+
 ### What you can do with it
 + White-balance by just inputing RGB values for which you want the saturation to be zero.
 + RGB curves functions that accepts [GIMP](https://github.com/GNOME/gimp) preset files (in the old format) as input.
