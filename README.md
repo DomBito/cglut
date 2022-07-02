@@ -13,7 +13,17 @@ More details on how the functions work and how to use them in the future.
 
 ### Usage:
 ```bash
-./cglut your_script.py
+usage: cglut [-h] [-s LSIZE] script_file
+
+Script-based color-grading 3D LUT creator.
+
+positional arguments:
+  script_file           script file with the color-grading functions
+
+options:
+  -h, --help            show this help message and exit
+  -s LSIZE, --lut_size LSIZE
+                        set LUT size (32, 64, 128, or 256)
 ```
 
 ### Example of a custom script:
