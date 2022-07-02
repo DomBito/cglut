@@ -13,7 +13,7 @@ More details on how the functions work and how to use them in the future.
 
 ### Usage:
 ```
-usage: ./cglut [-h] [-s LSIZE] script_file
+usage: ./cglut [-h] [-s LSIZE] SCRIPT_FILE
 
 positional arguments:
   script_file           script file with the color-grading functions
@@ -23,10 +23,11 @@ options:
   -s LSIZE, --lut_size LSIZE
                         set LUT size (32, 64, 128, or 256)
 ```
+Running `cglut` on a script will export a file named `lut.cube`.
 
 ### Example of a custom script:
 ```python
-#your_script.py
+#your_script_file.py
 gray_points= [[10,11,6], [150,144,149], [235,215,244]]
 balance(gray_points)
 rgbcurve(red=[0,0,100,70],green=[0,0,100,100],blue=[0,20,100,90], mode='luminance')
