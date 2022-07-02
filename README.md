@@ -12,7 +12,7 @@
 More details on how the functions work and how to use them in the future.
 
 ### Usage:
-```bash
+```
 usage: ./cglut [-h] [-s LSIZE] script_file
 
 positional arguments:
