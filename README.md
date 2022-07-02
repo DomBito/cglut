@@ -7,7 +7,7 @@
 + 1-D Curve function, but with extra channel options such as luminance, lightness, chroma and even hue.
 + Powerful "perturb" function, which is perturbation of the identity map of one channel, where the perturbation added is a function of another given channel.
 + Tweak function similar to [AviSynth's Tweak](https://www.avisynth.org.ru/docs/english/corefilters/tweak.htm).
-+ Use of visually uniform and linear color-spaces, such as xYy, cieLUV, cieLch and hsluv. For that, most of the [hsluv](https://github.com/hsluv/hsluv) project conversions are re-implemented in [NumPy](https://github.com/numpy/numpy/), so it's optimized for arrays.
++ Use of visually uniform and linear color-spaces, such as XYZ, xYy, cieLUV, cieLch and hsluv. For that, most of the [hsluv](https://github.com/hsluv/hsluv) project conversions are re-implemented in [NumPy](https://github.com/numpy/numpy/), so it's optimized for arrays.
 
 More details on how the functions work and how to use them in the future.
 
