@@ -2,7 +2,7 @@
 ### Create your own color-grading 3D-LUT preset using a custom python script.
 
 ### What you can do with it
-+ White-balance by just inputing RGB values for which is want the saturation to be zero.
++ White-balance by just inputing RGB values for which you want the saturation to be zero.
 + RGB curves functions that accepts [gimp](https://github.com/GNOME/gimp) preset files (in the old format) as input.
 + 1-D Curve function, but with extra channels such as luminance, lightness, chroma and even hue.
 + Powerful perturbation fucntion, that perturbs the identity map of one channel, where the perturbation added is a function of another given channel.
