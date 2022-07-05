@@ -404,7 +404,7 @@ def rmod(x,mod):
 
 def per_interp(hue, scale):
     first = hue[0,0]
-    hue = (hue)/scale
+    hue = ((hue)/scale) % 1.0
     l = len(hue)
     hue = hue[hue[:,0].argsort()]
     fl = np.array([hue[l-1],hue[0]])
@@ -426,12 +426,12 @@ def per_interp(hue, scale):
             else:
                 sn = np.where(s==np.min(sm))[0] - 1
         y[i+1:] = y[i+1:] + sn
-    f = [ lerp_trunc(x[i],y[i],x[i+1],y[i+1]) for i in range(l+1) ]
-    #import matplotlib.pyplot as plt
-    #g = lambda z: scale*(sum(f[i](z/scale) for i in range(len(f))) % 1.0)
-    #dom = np.linspace(0,360,num=360)
-    #plt.scatter(dom,g(dom),s=8)
-    #plt.show()
+    f = [ lerp_trunc(x[i],y[i],x[i+1],y[i+1]) for i in range(1,l+1) ]
+#    import matplotlib.pyplot as plt
+#    g = lambda z: scale*(sum(f[i](z/scale) for i in range(len(f))) % 1.0)
+#    dom = np.linspace(0,360,num=720)
+#    plt.scatter(dom,g(dom),s=8)
+#    plt.show()
     return lambda z: scale*(sum(f[i](z/scale) for i in range(len(f))) % 1.0)
 
 ######################################################################
@@ -777,18 +777,21 @@ def _balance(inp, grays = [[0,0,0],[255,255,255]]):
 def _tweak(inp, hue=0.0, chroma=1.0, bright=0,\
             r_range = [0,255], g_range = [0,255], b_range=[0,255],\
             c_range = [0,100], h_range = [0,360], l_range = [0,100],\
-            u_range = [0,100], v_range = [0,100], smooth=5):
+            u_range = [0,100], v_range = [0,100], smooth=5, relative_chroma=False):
     out = inp.copy()
     if hue != 0.0:
         out = _perturb(out,x=[0,120,240],y=[hue,hue,hue],domain='hue',codomain='hue',\
             r_range=r_range, g_range=g_range,b_range=b_range,c_range=c_range,h_range=h_range,\
-            l_range=l_range,u_range=u_range,v_range=v_range,smooth=smooth, mode = 'additive')
+            l_range=l_range,u_range=u_range,v_range=v_range,smooth=smooth, mode = 'additive',\
+            relative_chroma=False)
     if chroma != 1.0:
         out = _perturb(out,x=[0,100,200],y=[chroma,chroma,chroma],domain='chroma',codomain='chroma',\
             r_range=r_range, g_range=g_range,b_range=b_range,c_range=c_range,h_range=h_range,\
-            l_range=l_range,u_range=u_range,v_range=v_range,smooth=smooth, mode = 'multiplicative')
+            l_range=l_range,u_range=u_range,v_range=v_range,smooth=smooth, mode = 'multiplicative',\
+            relative_chroma=False)
     if bright != 0.0:
-        out = _perturb(out,x=[0,100],y=[bright,bright],domain='luminance',codomain='lumincance',\
+        out = _perturb(out,x=[0,100],y=[bright,bright],domain='lightness',codomain='lightness',\
             r_range=r_range, g_range=g_range,b_range=b_range,c_range=c_range,h_range=h_range,\
-            l_range=l_range,u_range=u_range,v_range=v_range,smooth=smooth, mode = 'additive')
+            l_range=l_range,u_range=u_range,v_range=v_range,smooth=smooth, mode = 'additive',\
+            relative_chroma=False)
     return out
