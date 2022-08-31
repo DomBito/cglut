@@ -54,6 +54,12 @@ def rgbcurve(red=[0,0,255,255], green=[0,0,255,255], blue=[0,0,255,255],\
             r_range, g_range, b_range, c_range, h_range,\
             l_range, u_range, v_range, relative_chroma)
 
+def local3dcontrast(cont=1.0, rgb1=[0,0,0], rgb2=[255,255,255], radius=10,\
+                    mode = None, smooth = 0,center=0.5, relative_chroma=False):
+    global lut
+    lut = colorlib._3dlocalcontrast(lut,cont,rgb1, rgb2, radius,\
+                    mode, smooth, center, relative_chroma)
+
 def perturb(x=[0,100],y=[0,0],domain='lightness',codomain='lightness',\
             r_range = [0,255], g_range = [0,255], b_range=[0,255],\
             c_range = [0,100], h_range = [0,360], l_range = [0,100],\

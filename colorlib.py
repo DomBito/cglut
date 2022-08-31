@@ -542,6 +542,8 @@ def restrict(inp, smooth,r_range, g_range, b_range,\
 
 def select_channel(inp, channel):
     perp = False
+    out = inp.copy()
+    cs = -1
     if   channel == 'blue':  ind = 0
     elif channel == 'green': ind = 1
     elif channel == 'red':   ind = 2
@@ -696,6 +698,79 @@ def _rgbcurve(inp, red=[0,0,255,255], green=[0,0,255,255], blue=[0,0,255,255],\
         out = yxy2bgr(as_pixels(out))
     return out
 
+def _3dlocalcontrast(src, cont=1.0, rgb1=[0,0,0], rgb2=[255,255,255], radius=10,\
+                mode = None, smooth = 0, center=0.5, relative_chroma=False ):
+
+    rgb1i = np.array(rgb1)
+    rgb2i = np.array(rgb2)
+    ncont1 = center*(1-cont)
+    ncont2 = (1-center)*(1-cont)
+    rgb1f = rgb1i + ncont1*(rgb2i-rgb1i)
+    rgb2f = rgb2i + ncont2*(rgb1i-rgb2i)
+    inp = src.copy()
+    out = _rgbcurve(inp,red=[rgb1[0],rgb1f[0],rgb2[0],rgb2f[0]],\
+                  green=[rgb1[1],rgb1f[1],rgb2[1],rgb2f[1]],\
+                   blue=[rgb1[2],rgb1f[2],rgb2[2],rgb2f[2]],\
+                   mode=mode,smooth=0, relative_chroma=relative_chroma)
+    if cont > 1:
+        rgb1c = rgb1f; rgb2c = rgb2f;
+    else:
+        rgb1c = rgb1i; rgb2c = rgb2i;
+    weights = 0*src
+
+    diff = np.max(np.abs(rgb2c-rgb1c))
+
+    intv = np.asarray([-radius,radius])
+    for i in np.arange(0,1,radius/(2*diff)):
+        r_range = (rgb1c[0] + (1-i)*(rgb2c[0]-rgb1c[0]) + intv).tolist()
+        g_range = (rgb1c[1] + (1-i)*(rgb2c[1]-rgb1c[1]) + intv).tolist()
+        b_range = (rgb1c[2] + (1-i)*(rgb2c[2]-rgb1c[2]) + intv).tolist()
+        weights = np.maximum(weights, restrict(inp,smooth,r_range,g_range,b_range,\
+                            [0,100], [0,360], [0,100],[0,100], [0,100]))
+    r_range = (rgb2c[0] + intv).tolist()
+    g_range = (rgb2c[1] + intv).tolist()
+    b_range = (rgb2c[2] + intv).tolist()
+    weights = np.maximum(weights, restrict(inp, smooth,r_range, g_range, b_range,\
+                            [0,100], [0,360], [0,100],[0,100], [0,100]))
+    out = inp + weights*(out.copy() - inp)
+    if mode == 'chroma':
+        inp = as_channels(bgr2lch(inp))
+        out = as_channels(bgr2lch(out))
+        out[0] = inp[0]
+        out[2] = inp[2]
+        out = lch2bgr(as_pixels(out))
+    if mode == 'color':
+        inp = as_channels(bgr2luv(inp))
+        out = as_channels(bgr2luv(out))
+        out[0] = inp[0]
+        out = luv2bgr(as_pixels(out))
+    if mode == 'lightness':
+        inp = as_channels(bgr2luv(inp))
+        out = as_channels(bgr2luv(out))
+        if relative_chroma:
+            inp = as_channels(as_pixels(luv2hsluv(inp)))
+            out = as_channels(as_pixels(luv2hsluv(out)))
+            out[0] = inp[0].copy()
+            out[1] = inp[1].copy()
+        else:
+            out[1] = inp[1]
+            out[2] = inp[2]
+            out = as_channels(luv2hsluv(as_pixels(out)))
+            inp = as_channels(luv2hsluv(as_pixels(inp)))
+        out[1] = np.clip(out[1],0.0,100.0)
+        out = hsluv2bgr(as_pixels(out))
+    if mode == 'luminance':
+        inp = as_channels(bgr2yxy(inp.copy()))
+        out = as_channels(bgr2yxy(out.copy()))
+        out[1] = inp[1]
+        out[2] = inp[2]
+        out = yxy2bgr(as_pixels(out))
+    if mode == 'chrominance':
+        inp = as_channels(bgr2yxy(inp.copy()))
+        out = as_channels(bgr2yxy(out.copy()))
+        out[0] = inp[0]
+        out = yxy2bgr(as_pixels(out))
+    return out
 
 def _perturb(src,x=[0,100],y=[0,0],domain='lightness',codomain='lightness',\
             r_range = [0,255], g_range = [0,255], b_range=[0,255],\
