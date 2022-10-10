@@ -79,7 +79,7 @@ def make_LUT(nplut,ls,fname):
     with open(fname+".cube", 'w') as lut_file:
         lut_file.write('LUT_3D_SIZE '+str(ls)+'\n\n')
         for i in range(ls**3):
-            s = ("%.8f %.8f %.8f" % tuple(nplut[i]))
+            s = ("%.8g %.8g %.8g" % tuple(nplut[i]))
             lut_file.write("%s\n" % s)
 
 #####################################################################

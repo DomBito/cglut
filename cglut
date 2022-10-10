@@ -20,8 +20,8 @@ args = parser.parse_args()
 script = args.sfile.readlines()
 
 lsize = args.lsize
-if lsize!=32 and lsize!=64 and lsize!=128 and lsize!=256:
-    sys.exit("\nLUT size must be either 32, 64, 128 or 256!\n")
+if lsize < 2 or lsize > 256:
+    sys.exit("\nLUT size must be between 2 and 256!\n")
 
 if os.path.isfile("preLUT"+str(lsize)+".npy"):
     lut = np.load("preLUT"+str(lsize)+".npy")
