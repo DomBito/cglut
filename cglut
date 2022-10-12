@@ -15,6 +15,13 @@ parser.add_argument(metavar="script_file",
 parser.add_argument('-s', '--lut_size',
                         dest='lsize', default=64, type=int,
                         help='set LUT size (32, 64, 128, or 256)')
+parser.add_argument('-o', '--output',
+                        dest='lutfile', default="lut", type=str,
+                        help='Name of the lut file.')
+parser.add_argument('-c', '--clean',
+                    dest='clean', default=False, const=True,
+                    action='store_const',
+                    help="Doesn't save the preLUT file (slow down your LUT creations if you are exporting them multiple times).")
 args = parser.parse_args()
 
 script = args.sfile.readlines()
@@ -33,7 +40,8 @@ else:
             for k in np.arange(lsize):
                 lut.append(np.asarray([i,j,k])*255.0/(lsize-1))
     lut = np.asarray([lut])
-    np.save("preLUT"+str(lsize)+".npy",lut)
+    if not args.clean:
+        np.save("preLUT"+str(lsize)+".npy",lut)
 
 
 def curve1d(curve = [0,0,360,360], channel = 'lightness', smooth = 0,\
@@ -87,5 +95,7 @@ def tweak(hue=0.0, chroma=1.0, bright=0.0,\
 for i in range(len(script)):
     exec(script[i].strip('\n'))
 
-#lut = colorlib.clipRGB(lut)
+ofile = args.lutfile
+if ofile[-5:] == ".cube":
+    ofile = ofile[:-5]
 colorlib.make_LUT(lut,lsize,"lut")
