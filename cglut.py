@@ -53,12 +53,12 @@ def curve1d(curve = [0,0,360,360], channel = 'lightness', smooth = 0,\
             c_range, h_range, l_range, u_range, v_range, relative_chroma)
 
 def rgbcurve(red=[0,0,255,255], green=[0,0,255,255], blue=[0,0,255,255],\
-            mode = None, smooth = 0, gimpfile = None,\
+            master=[0,0,255,255],mode = None, smooth = 0, gimpfile = None,\
             r_range = [0,255], g_range = [0,255], b_range=[0,255],\
             c_range = [0,100], h_range = [0,360], l_range = [0,100],\
             u_range = [0,100], v_range = [0,100], relative_chroma=False):
     global lut
-    lut = colorlib._rgbcurve(lut, red, green, blue, mode, smooth, gimpfile,\
+    lut = colorlib._rgbcurve(lut, red, green, blue, master, mode, smooth, gimpfile,\
             r_range, g_range, b_range, c_range, h_range,\
             l_range, u_range, v_range, relative_chroma)
 

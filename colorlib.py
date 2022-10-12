@@ -623,19 +623,26 @@ def _curve1d(src, curve = [0,0,360,360], channel = 'luminance', smooth = 5,\
     return out
 
 def _rgbcurve(inp, red=[0,0,255,255], green=[0,0,255,255], blue=[0,0,255,255],\
-            mode = None, smooth = 0, gimpfile = None,\
+            master=[0,0,255,255],mode = None, smooth = 0, gimpfile = None,\
             r_range = [0,255], g_range = [0,255], b_range=[0,255],\
             c_range = [0,100], h_range = [0,360], l_range = [0,100],\
             u_range = [0,100], v_range = [0,100], relative_chroma=False):
     if gimpfile != None:
         file = open(gimpfile, "r")
         lines = file.readlines()
+        master = np.array(lines[1].split()).astype(float)
+        master = master[master!=-1]
         red = np.array(lines[2].split()).astype(float)
         red = red[red!=-1]
         green = np.array(lines[3].split()).astype(float)
         green = green[green!=-1]
         blue = np.array(lines[4].split()).astype(float)
         blue = blue[blue!=-1]
+    try:
+        master = np.array(master).reshape(int(len(master)/2),2)
+        m = lin_interp(master)
+    except ValueError:
+        print("Error: 'master' list must be of even size!")
     try:
         red = np.array(red).reshape(int(len(red)/2),2)
         r = lin_interp(red)
@@ -655,6 +662,7 @@ def _rgbcurve(inp, red=[0,0,255,255], green=[0,0,255,255], blue=[0,0,255,255],\
     out[2] = r(out[2])
     out[1] = g(out[1])
     out[0] = b(out[0])
+    out = m(out)
     out = as_pixels(out).clip(0.0,255.0)
     weights = restrict(inp, smooth,r_range, g_range, b_range,\
                 c_range, h_range, l_range,u_range, v_range)
@@ -859,11 +867,15 @@ def _tweak(inp, hue=0.0, chroma=1.0, bright=0,\
             r_range=r_range, g_range=g_range,b_range=b_range,c_range=c_range,h_range=h_range,\
             l_range=l_range,u_range=u_range,v_range=v_range,smooth=smooth, mode = 'additive',\
             relative_chroma=False)
+    h_range[0] += hue
+    h_range[1] += hue
     if chroma != 1.0:
         out = _perturb(out,x=[0,100,200],y=[chroma,chroma,chroma],domain='chroma',codomain='chroma',\
             r_range=r_range, g_range=g_range,b_range=b_range,c_range=c_range,h_range=h_range,\
             l_range=l_range,u_range=u_range,v_range=v_range,smooth=smooth, mode = 'multiplicative',\
             relative_chroma=False)
+    c_range[0] *= chroma
+    c_range[1] *= chroma
     if bright != 0.0:
         out = _perturb(out,x=[0,100],y=[bright,bright],domain='lightness',codomain='lightness',\
             r_range=r_range, g_range=g_range,b_range=b_range,c_range=c_range,h_range=h_range,\
