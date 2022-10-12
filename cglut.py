@@ -98,4 +98,4 @@ for i in range(len(script)):
 ofile = args.lutfile
 if ofile[-5:] == ".cube":
     ofile = ofile[:-5]
-colorlib.make_LUT(lut,lsize,"lut")
+colorlib.make_LUT(lut,lsize,ofile)
