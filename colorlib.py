@@ -328,23 +328,40 @@ def yuv2bgr(yuv):
     b =  y + s*u - (1/3)*v
     return as_pixels([b,g,r])*255.0
 
-def hsl2bgr(hsl):
-    [h,s,l] = as_channels(hsl)
+def hcl2bgr(hcl):
+    [h,c,l] = as_channels(hcl)
     h = np.radians(h)
-    u = -s*np.sin(h)/100
-    v =  s*np.cos(h)/100
+    u = -c*np.sin(h)/100
+    v =  c*np.cos(h)/100
     y = l/100
     yuv = as_pixels([y,u,v])
     return yuv2bgr(yuv)
 
-def bgr2hsl(bgr):
+def bgr2hcl(bgr):
     [y,u,v] = as_channels(bgr2yuv(bgr))
     h =  np.degrees(np.arctan2(-u,v))
     neg = h < 0
     h[neg] = h[neg] + 360
-    s = 100*np.sqrt(np.power(u,2)+np.power(v,2))
+    c = 100*np.sqrt(np.power(u,2)+np.power(v,2))
     l = 100*y
+    return as_pixels([h,c,l])
+
+def hcl2hsl(hcl):
+    [h,c,l] = as_channels(hcl)
+    s = c/l
     return as_pixels([h,s,l])
+
+def hsl2hcl(hsl):
+    [h,s,l] = as_channels(hsl)
+    c = s*l
+    c[l == 0] = 0
+    return as_pixels([h,c,l])
+
+def hsl2bgr(hsl):
+    return hcl2bgr(hsl2hcl(hsl))
+
+def bgr2hsl(bgr):
+    return hcl2hsl(bgr2hcl(bgr))
 
 def hsl2luv(hsl):
     return bgr2luv(hsl2bgr(hsl))
@@ -363,6 +380,24 @@ def hsl2hsluv(hsl):
 
 def hsl2hsluv(hsl):
     return lch2hsl(hsluv2lch(hsl))
+
+def hcl2luv(hcl):
+    return bgr2luv(hcl2bgr(hcl))
+
+def luv2hcl(lch):
+    return bgr2hcl(luv2bgr(lch))
+
+def hcl2lch(hcl):
+    return bgr2lch(hcl2bgr(hcl))
+
+def lch2hcl(lch):
+    return bgr2hcl(lch2bgr(lch))
+
+def hcl2hcluv(hcl):
+    return lch2hcluv(hcl2lch(hcl))
+
+def hcl2hcluv(hcl):
+    return lch2hcl(hcluv2lch(hcl))
 
 #############################################################
 
