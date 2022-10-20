@@ -47,20 +47,22 @@ else:
 def curve1d(curve = [0,0,360,360], channel = 'lightness', smooth = 0,\
             r_range = [0,255], g_range = [0,255], b_range=[0,255],\
             c_range = [0,100], h_range = [0,360], l_range = [0,100],\
-            u_range = [0,100], v_range = [0,100], relative_chroma=False):
+            u_range = [0,100], v_range = [0,100], strength=1.0, relative_chroma=False):
     global lut
-    lut = colorlib._curve1d(lut, curve, channel, smooth, r_range, g_range, b_range,\
+    lut1 = colorlib._curve1d(lut, curve, channel, smooth, r_range, g_range, b_range,\
             c_range, h_range, l_range, u_range, v_range, relative_chroma)
+    lut  = strength*lut1 + (1-strength)*lut
 
 def rgbcurve(red=[0,0,255,255], green=[0,0,255,255], blue=[0,0,255,255],\
             master=[0,0,255,255],mode = None, smooth = 0, gimpfile = None,\
             r_range = [0,255], g_range = [0,255], b_range=[0,255],\
             c_range = [0,100], h_range = [0,360], l_range = [0,100],\
-            u_range = [0,100], v_range = [0,100], relative_chroma=False):
+            u_range = [0,100], v_range = [0,100], strength=1.0, relative_chroma=False):
     global lut
-    lut = colorlib._rgbcurve(lut, red, green, blue, master, mode, smooth, gimpfile,\
+    lut1 = colorlib._rgbcurve(lut, red, green, blue, master, mode, smooth, gimpfile,\
             r_range, g_range, b_range, c_range, h_range,\
             l_range, u_range, v_range, relative_chroma)
+    lut  = strength*lut1 + (1-strength)*lut
 
 def local3dcontrast(cont=1.0, rgb1=[0,0,0], rgb2=[255,255,255], radius=10,\
                     mode = None, smooth = 0,center=0.5, relative_chroma=False):
@@ -72,15 +74,17 @@ def perturb(x=[0,100],y=[0,0],domain='lightness',codomain='lightness',\
             r_range = [0,255], g_range = [0,255], b_range=[0,255],\
             c_range = [0,100], h_range = [0,360], l_range = [0,100],\
             u_range = [0,100], v_range = [0,100], smooth=5,\
-            relative_chroma = False, mode = 'additive'):
+            relative_chroma = False, strength=1.0, mode = 'additive'):
     global lut
-    lut = colorlib._perturb(lut,x,y,domain,codomain,\
+    lut1 = colorlib._perturb(lut,x,y,domain,codomain,\
             r_range, g_range, b_range,c_range, h_range, l_range,\
             u_range, v_range, smooth,relative_chroma, mode)
+    lut  = strength*lut1 + (1-strength)*lut
 
-def balance(grays = [[0,0,0],[255,255,255]]):
+def balance(grays = [[0,0,0],[255,255,255]], strength=1.0):
     global lut
-    lut = colorlib._balance(lut, grays)
+    lut1 = colorlib._balance(lut, grays)
+    lut  = strength*lut1 + (1-strength)*lut
 
 def tweak(hue=0.0, chroma=1.0, bright=0.0,\
           r_range = [0,255], g_range = [0,255], b_range=[0,255],\

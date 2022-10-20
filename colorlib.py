@@ -312,6 +312,23 @@ def bt6012bgr(yuv):
     b =  y + 2.03211*u + 0.00000*v
     return as_pixels([b,g,r])*255.0
 
+def bt6012ahcl(yuv):
+    [y,u,v] = as_channels(yuv)
+    h =  np.degrees(np.arctan2(v,u))
+    neg = h < 0
+    h[neg] = h[neg] + 360
+    c = 100*np.sqrt(np.power(u,2)+np.power(v,2))
+    l = 100*y
+    return as_pixels([h,c,l])
+
+def ahcl2bt601(hcl):
+    [h,c,l] = as_channels(hcl)
+    h = np.radians(h)
+    v = c*np.sin(h)/100
+    u = c*np.cos(h)/100
+    y = l/100
+    return as_pixels([y,u,v])
+
 def bgr2yuv(bgr):
     [b,g,r] = as_channels(bgr)/255.0
     y =  (1/3)*r + (1/3)*g + (1/3)*b
@@ -398,6 +415,9 @@ def hcl2hcluv(hcl):
 
 def hcl2hcluv(hcl):
     return lch2hcl(hcluv2lch(hcl))
+
+def avshue2hue(hue):
+    return bgr2hcl(bt6012bgr(ahcl2bt601([[[hue,100,100]]])))[0,0,0]
 
 #############################################################
 
