@@ -21,7 +21,7 @@ parser.add_argument('-o', '--output',
 parser.add_argument('-c', '--clean',
                     dest='clean', default=False, const=True,
                     action='store_const',
-                    help="Doesn't save the preLUT file (slow down your LUT creations if you are exporting them multiple times).")
+                    help="Doesn't save the preLUT file (preLUT makes consecutive exports faster).")
 args = parser.parse_args()
 
 script = args.sfile.readlines()

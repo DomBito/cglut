@@ -15,7 +15,9 @@ More details on how the functions work and how to use them in the future.
 
 ### Usage:
 ```
-usage: ./cglut [-h] [-s LSIZE] SCRIPT_FILE
+usage: cglut [-h] [-s LSIZE] [-o LUTFILE] [-c] script_file
+
+Script-based color-grading 3D LUT creator.
 
 positional arguments:
   script_file           script file with the color-grading functions
@@ -24,6 +26,9 @@ options:
   -h, --help            show this help message and exit
   -s LSIZE, --lut_size LSIZE
                         set LUT size (32, 64, 128, or 256)
+  -o LUTFILE, --output LUTFILE
+                        Name of the lut file.
+  -c, --clean           Doesn't save the preLUT file (preLUT makes consecutive exports faster).
 ```
 Running `cglut` on a script will export a file named `lut.cube`.
 
@@ -32,14 +37,14 @@ Running `cglut` on a script will export a file named `lut.cube`.
 #your_script_file.py
 gray_points= [[10,11,6], [150,144,149], [235,215,244]]
 balance(gray_points)
-rgbcurve(red=[0,0,100,70],green=[0,0,100,100],blue=[0,20,100,90], mode='luminance')
-tweak(hue=10, l_range=[30,80], c_range[50,100], h_range=[180,210])
+rgbcurve(red=[0,0,100,70],green=[0,0,100,100],blue=[0,20,100,90], mode='luminance',strength=0.9)
+tweak(hue=10, l_range=[30,80], c_range[50,100], h_range=[180,210], smooth=30)
 ```
 
 What this example script does:
  - Applies white-balance by shifting the chroma channels along the luminosity so the `gray_points` turns into actual grays (zero saturation).
- - Change the scale of each Red,Green, and Blue channels using curve-like function (with linear interpolation), but only affecting the luminosity.
- - Adds 10 deg of hue for the colors within the given lightness, chroma and hue ranges.
+ - Change the scale of each Red, Green, and Blue channels using curve-like function (with linear interpolation). In this instance, it only affects the luminosity (`mode='luminance'`) and it takes 90% of effect (`strength=0.9`) of what this particular RGB curve would normally do.
+ - Adds 10 deg of hue for the colors within the given lightness, chroma and hue ranges. Outside this range, the strength of the filter linearely drops to 0 when the colors are 30 numbers alway from the ranges in each channel (`smooth=30`).
 
 ### Using the exported LUT:
 You can import the `.cube` file in any program that accepts this format.
@@ -50,7 +55,18 @@ dst = core.resize.Bicubic(clip=src, format=vs.RGBS)
 dst = core.timecube.Cube(dst,cube="lut.cube")
 dst = core.resize.Bicubic(clip=dst, format=vs.YUV420P8, matrix_s='709')
 ```
-Also, you can quickly preview the LUT file on a image or video using [mpv](https://github.com/mpv-player/mpv):
+#### Using ffmpeg to apply the LUT:
+To get an image or video with your LUT applied to it with[FFmpeg](https://github.com/FFmpeg/FFmpeg), you just need to run
+```
+ffmpeg -y -v quiet -i VIDEO_OR_IMAGE_INPUT -vf lut3d="CUBE_FILE" VIDEO_OR_IMAGE_INPUT
+```
+#### Preview with MPV:
+You can quickly preview the LUT file on a image or video using [mpv](https://github.com/mpv-player/mpv):
 ```bash
-mpv --keep-open --vf="lavfi=[lut3d=PATH_TO_CUBE_FILE]" VIDEO_OR_IMAGE_FILE
+mpv --keep-open --vf="lavfi=[lut3d=CUBE_FILE]" VIDEO_OR_IMAGE_FILE
+```
+#### Applying it with Imagemagick
+For images only, you can also use [ImageMagick](https://github.com/ImageMagick/ImageMagick):
+```bash
+magick IMG_INPUT cube:CUBE_FILE -hald-clut IMG_OUTPUT
 ```
