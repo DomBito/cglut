@@ -586,11 +586,11 @@ def restrict(inp, smooth,r_range, g_range, b_range,\
         weight = restrict_func(inp, [l_range,u_range,v_range], smooth, 1)
         weights = weights*as_pixels([weight,weight,weight])
         if any(clip[6:8]):
-            inp = luv2hsl(inp)
+            inp = luv2hcl(inp)
             weight = restrict_func(inp, [h_range,c_range,l_range], smooth, 2)
             weights = weights*as_pixels([weight,weight,weight])
     elif any(clip[6:8]):
-            inp = bgr2hsl(inp)
+            inp = bgr2hcl(inp)
             weight = restrict_func(inp, [h_range,c_range,l_range], smooth, 2)
             weights = weights*as_pixels([weight,weight,weight])
     return weights
@@ -614,7 +614,7 @@ def select_channel(inp, channel):
             elif channel == 'chroma_v':  ind = 2
             else:
                 cs = 2
-                out = bgr2hsl(inp.copy())
+                out = bgr2hcl(inp.copy())
                 if channel == 'hue':
                     ind = 0
                     perp = True
@@ -645,7 +645,7 @@ def _curve1d(src, curve = [0,0,360,360], channel = 'luminance', smooth = 5,\
 
     if cs == 2:
         if relative_chroma:
-            out = hsl2hsluv(out)
+            out = hcl2hsluv(out)
             inp = bgr2hsluv(src)
             out[:,:,2] = inp[:,:,2]
             if perp:
@@ -653,7 +653,7 @@ def _curve1d(src, curve = [0,0,360,360], channel = 'luminance', smooth = 5,\
             out = hsluv2bgr(out)
             inp = hsluv2bgr(inp)
         else:
-            out = hsl2lch(out)
+            out = hcl2lch(out)
             inp = bgr2lch(src)
             out[:,:,2] = inp[:,:,2]
             out = lch2hsluv(out)
@@ -869,7 +869,7 @@ def _perturb(src,x=[0,100],y=[0,0],domain='lightness',codomain='lightness',\
 
     if cs == 2:
         if relative_chroma:
-            out = hsl2hsluv(out)
+            out = hcl2hsluv(out)
             inp = bgr2hsluv(src)
             out[:,:,2] = inp[:,:,2]
             if perp:
@@ -877,7 +877,7 @@ def _perturb(src,x=[0,100],y=[0,0],domain='lightness',codomain='lightness',\
             out = hsluv2bgr(out)
             inp = hsluv2bgr(inp)
         else:
-            out = hsl2lch(out)
+            out = hcl2lch(out)
             inp = bgr2lch(src)
             out[:,:,2] = inp[:,:,2]
             out = lch2hsluv(out)
