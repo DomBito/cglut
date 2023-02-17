@@ -925,6 +925,7 @@ def _perturb(src,x=[0,100],y=[0,0],domain='lightness',codomain='lightness',\
 def _balance(inp, grays = [[0,0,0],[255,255,255]]):
     tinted = bgr2yuv([np.flip(grays,1)])[0]
     domain = yuv2luv([tinted])[0][:,0]
+    domain.sort()
     tinted = tinted[tinted[:,0].argsort()]
     pert_u = -tinted[:,1]
     pert_v = -tinted[:,2]
