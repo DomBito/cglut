@@ -404,6 +404,12 @@ def hcl2luv(hcl):
 def luv2hcl(lch):
     return bgr2hcl(luv2bgr(lch))
 
+def luv2yuv(luv):
+    return bgr2yuv(luv2bgr(luv))
+
+def yuv2luv(yuv):
+    return bgr2luv(yuv2bgr(yuv))
+
 def hcl2lch(hcl):
     return bgr2lch(hcl2bgr(hcl))
 
@@ -610,8 +616,6 @@ def select_channel(inp, channel):
             cs = 1
             out = bgr2luv(inp.copy())
             if   channel == 'lightness': ind = 0
-            elif channel == 'chroma_u':  ind = 1
-            elif channel == 'chroma_v':  ind = 2
             else:
                 cs = 2
                 out = bgr2hcl(inp.copy())
@@ -621,7 +625,12 @@ def select_channel(inp, channel):
                 elif channel == 'chroma':
                     ind = 1
                 else:
-                    raise ValueError("Invalid channel! The variable 'channel' must be either 'red', 'green', 'blue', 'luminance', 'lightness', 'hue', 'chroma', 'chroma_u', or 'chroma_v'")
+                    cs = 3
+                    out = bgr2yuv(inp.copy())
+                    if   channel == 'chroma_u':  ind = 1
+                    elif channel == 'chroma_v':  ind = 2
+                    else:
+                        raise ValueError("Invalid channel! The variable 'channel' must be either 'red', 'green', 'blue', 'luminance', 'lightness', 'hue', 'chroma', 'chroma_u', or 'chroma_v'")
     return [out, cs, ind, perp]
 
 def _curve1d(src, curve = [0,0,360,360], channel = 'luminance', smooth = 5,\
@@ -670,6 +679,12 @@ def _curve1d(src, curve = [0,0,360,360], channel = 'luminance', smooth = 5,\
             out[:,:,1] = np.clip(out[:,:,1],0.0,100.0)
             inp = luv2bgr(inp)
         out = hsluv2bgr(out)
+    elif cs == 3:
+       out = yuv2luv(out)
+       inp = yuv2luv(inp)
+       out[:,:,0] = inp[:,:,0]
+       inp = luv2bgr(inp)
+       out = luv2bgr(out)
     elif cs == 0:
         out = yxy2bgr(out)
     weights = restrict(inp, smooth,r_range, g_range, b_range,\
@@ -894,6 +909,12 @@ def _perturb(src,x=[0,100],y=[0,0],domain='lightness',codomain='lightness',\
             out[:,:,1] = np.clip(out[:,:,1],0.0,100.0)
             inp = luv2bgr(inp)
         out = hsluv2bgr(out)
+    elif cs == 3:
+        out = yuv2luv(out)
+        inp = yuv2luv(inp)
+        out[:,:,0] = inp[:,:,0]
+        inp = luv2bgr(inp)
+        out = luv2bgr(out)
     elif cs == 0:
         out = yxy2bgr(out)
     weights = restrict(inp, smooth,r_range, g_range, b_range,\
@@ -902,14 +923,21 @@ def _perturb(src,x=[0,100],y=[0,0],domain='lightness',codomain='lightness',\
     return out
 
 def _balance(inp, grays = [[0,0,0],[255,255,255]]):
-    tinted = bgr2luv([np.flip(grays,1)])[0]
+    tinted = bgr2yuv([np.flip(grays,1)])[0]
+    domain = yuv2luv([tinted])[0][:,0]
     tinted = tinted[tinted[:,0].argsort()]
-    domain = tinted[:,0]
     pert_u = -tinted[:,1]
     pert_v = -tinted[:,2]
     out = inp.copy()
-    out = _perturb(out,x=domain,y=pert_u,domain='lightness',codomain='chroma_u')
-    out = _perturb(out,x=domain,y=pert_v,domain='lightness',codomain='chroma_v')
+    out_u = bgr2yuv(_perturb(inp,x=domain,y=pert_u,domain='lightness',codomain='chroma_u'))
+    out_v = bgr2yuv(_perturb(inp,x=domain,y=pert_v,domain='lightness',codomain='chroma_v'))
+    out = bgr2yuv(out)
+    inp = bgr2yxy(inp)
+    out[:,:,1] = out_u[:,:,1]
+    out[:,:,2] = out_v[:,:,2]
+    out = bgr2yxy(yuv2bgr(out))
+    out[:,:,0] = inp[:,:,0]
+    out = yxy2bgr(out)
     return out
 
 def _tweak(inp, hue=0.0, chroma=1.0, bright=0,\
